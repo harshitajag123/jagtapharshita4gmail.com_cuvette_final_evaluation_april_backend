@@ -19,13 +19,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
 	cors({
-		//origin: "*",
-		origin:
-			process.env.NODE_ENV === "production"
-				? "https://webstory-app.onrender.com"
-				: "*",
+		origin: ["http://localhost:5000", "https://pro-manage-sepia.vercel.app"], 
+			// Frontend URL
+		methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+		credentials: true, // Enable this if you're dealing with cookies
 	})
 );
+
+
+
 
 const logStream = fs.createWriteStream(path.join(__dirname, "log.txt"), {
 	flags: "a",
