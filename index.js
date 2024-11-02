@@ -31,7 +31,7 @@ app.use(
 		origin: ["http://localhost:5000", "https://pro-manage-sepia.vercel.app"],
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Include OPTIONS for preflight
 		credentials: true, // Allow credentials
-		allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+		allowedHeaders: ["Content-Type", "Authorization", "email"], // Specify allowed headers
 	})
 );
 app.options("*", cors()); // Allow all options requests with CORS
