@@ -186,109 +186,131 @@ const updateAllTaskDetailsById = async (req, res, next) => {
 };
 
 //Get tasks by userId -- filters (this week, this month, today)
-// const getTasksByUserId = async (req, res) => {
-// 	try {
-// 		const userId = req.user.userId; //extract userId from req.user
-// 		const filter = req.query.filter; //extract filter from req.query
-// 		const userEmail = req.headers.email; // Get the email from query parameters
 
-// 		console.log("User ID received in backend:", userId);
-// 		console.log("Filter received:", filter);
-// 		console.log("Email received:", userEmail);
 
-// 		const now = new Date();
-// 		let startDate;
-// 		let endDate = now;
 
-// 		//detrmine the startdate based on filter
-// 		switch (filter) {
-// 			case "today":
-// 				//if filter is today, set the startDate to today
-// 				startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-// 				break;
 
-// 			case "thisWeek":
-// 				const dayOfWeek = now.getDay(); //get the current day of the week
-// 				const dayToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // if today is sunday, then monday is the first day of the week
-// 				startDate = new Date(now);
-// 				startDate.setDate(now.getDate() - dayToMonday); //set the date to the day before monday
-// 				break;
 
-// 			case "thisMonth":
-// 				startDate = new Date(now.getFullYear(), now.getMonth(), 1); //get the first day of the current month
-// 				break;
-// 			default:
-// 				startDate = new Date(0); // If the filter is not valid, return all tasks
-// 				break;
-// 		}
-
-// 		//fetch tasks by userId
-// 		const tasksByUserId = await userTask.find({
-// 			userId: userId,
-// 			createdAt: { $gte: startDate, $lte: endDate },
-// 		});
-
-// 		//fetch tasks by email
-// 		const tasksByEmail = await userTask.find({
-// 			userId: userEmail,
-// 			createdAt: { $gte: startDate, $lte: endDate },
-// 		});
-
-// 		//merge both the task arrays
-// 		const taskSet = new Map();
-// 		[...tasksByUserId, ...tasksByEmail].forEach((task) => {
-// 			taskSet.set(task._id.toString(), task);
-// 		});
-// 		const combineTasks = Array.from(taskSet.values());
-// 		res.status(200).json(combineTasks);
-// 	} catch (err) {
-// 		console.error("Error fetching tasks:", err);
-// 		res.status(500).send(`Failed to fetch tasks: ${err.message}`);
-// 		next(err);
-// 	}
-// };
-
-// Get tasks by userId with filters (this week, this month, today)
 const getTasksByUserId = async (req, res, next) => {
 	try {
-		const userId = req.user.userId; // Ensure this is an ObjectId
-		const filter = req.query.filter; // Extract filter from query
+		const userId = req.user.userId;
+		const filter = req.query.filter;
 		console.log("User ID received in backend:", userId);
 		console.log("Filter received:", filter);
 
 		const now = new Date();
 		let startDate;
-		let endDate = now;
+		let endDate = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+			23,
+			59,
+			59,
+			999
+		); // End of today
 
-		// Determine the startDate based on the filter
 		switch (filter) {
 			case "today":
-				startDate = new Date(now.setHours(0, 0, 0, 0)); // Start of today
+				startDate = new Date(
+					now.getFullYear(),
+					now.getMonth(),
+					now.getDate(),
+					0,
+					0,
+					0,
+					0
+				); // Start of today
 				break;
 			case "thisweek":
-				startDate = new Date(now.setDate(now.getDate() - now.getDay())); // Start of this week
+				startDate = new Date(now);
+				startDate.setDate(now.getDate() - now.getDay()); // Start of this week (Sunday)
+				startDate.setHours(0, 0, 0, 0);
+				endDate = new Date(
+					now.getFullYear(),
+					now.getMonth(),
+					now.getDate(),
+					23,
+					59,
+					59,
+					999
+				); // End of today
 				break;
 			case "thismonth":
 				startDate = new Date(now.getFullYear(), now.getMonth(), 1); // Start of this month
+				endDate = new Date(
+					now.getFullYear(),
+					now.getMonth() + 1,
+					0,
+					23,
+					59,
+					59,
+					999
+				); // End of this month
 				break;
 			default:
-				startDate = null; // No filter applied
+				startDate = null;
 		}
 
-		let query = { userId }; // Set the userId filter
+		let query = { userId };
 		if (startDate) {
-			query.createdAt = { $gte: startDate, $lte: endDate }; // Add date filter
+			query.createdAt = { $gte: startDate, $lte: endDate };
 		}
 
-		const tasks = await userTask.find(query); // Fetch tasks based on query
+		const tasks = await userTask.find(query);
 		res.status(200).json(tasks);
 	} catch (err) {
 		console.error("Error fetching tasks:", err);
-		next(err); // Pass error to error handling middleware
+		next(err);
 	}
 };
 
+
+
+
+// //originalgetTasksByUserId
+// const getTasksByUserId = async (req, res, next) => {
+// 	try {
+// 		const userId = req.user.userId; // Ensure this is an ObjectId
+// 		const filter = req.query.filter; // Extract filter from query
+// 		console.log("User ID received in backend:", userId);
+// 		console.log("Filter received:", filter);
+
+// 		const now = new Date();
+// 		let startDate;
+// 		let endDate = now;
+
+// 		// Determine the startDate based on the filter
+// 		switch (filter) {
+// 			case "today":
+// 				startDate = new Date(now.setHours(0, 0, 0, 0)); // Start of today
+// 				break;
+// 			case "thisweek":
+// 				startDate = new Date(now.setDate(now.getDate() - now.getDay())); // Start of this week
+// 				break;
+// 			case "thismonth":
+// 				startDate = new Date(now.getFullYear(), now.getMonth(), 1); // Start of this month
+// 				break;
+// 			default:
+// 				startDate = null; // No filter applied
+// 		}
+
+// 		let query = { userId }; // Set the userId filter
+// 		if (startDate) {
+// 			query.createdAt = { $gte: startDate, $lte: endDate }; // Add date filter
+// 		}
+
+// 		const tasks = await userTask.find(query); // Fetch tasks based on query
+// 		res.status(200).json(tasks);
+// 	} catch (err) {
+// 		console.error("Error fetching tasks:", err);
+// 		next(err); // Pass error to error handling middleware
+// 	}
+// };
+
 //Analytics of data -- get all tasks and count them by status, priority, due date
+
+
 const getAnalyticsData = async (req, res, next) => {
 	try {
 		const userId = req.user.userId; // extract userId from req.user

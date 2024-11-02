@@ -21,7 +21,7 @@ app.use(
 	cors({
 		origin: ["http://localhost:5000", "https://pro-manage-sepia.vercel.app"],
 		// Frontend URL
-		methods: ["GET", "POST", "PUT","PATCH", "DELETE"], // Allowed HTTP methods
+		methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed HTTP methods
 		credentials: true, // Enable this if you're dealing with cookies
 	})
 );
