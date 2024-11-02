@@ -30,7 +30,10 @@ const registerUser = async (req, res, next) => {
 		});
 		// save user
 		await newUser.save();
-		res.status(201).send("User created/registered successfully.");
+		res
+			.status(201)
+			.json({ message: "success" })
+			.send("User created/registered successfully.");
 	} catch (error) {
 		next(error);
 	}
@@ -97,7 +100,6 @@ const getUserById = async (req, res) => {
 };
 
 //update user
-
 
 const updateUser = async (req, res, next) => {
 	try {
