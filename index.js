@@ -17,14 +17,24 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// app.use(
+// 	cors({
+// 		origin: ["http://localhost:5000", "https://pro-manage-sepia.vercel.app"],
+// 		// Frontend URL
+// 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed HTTP methods
+// 		credentials: true, // Enable this if you're dealing with cookies
+// 	})
+// );
+
 app.use(
 	cors({
 		origin: ["http://localhost:5000", "https://pro-manage-sepia.vercel.app"],
-		// Frontend URL
-		methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed HTTP methods
-		credentials: true, // Enable this if you're dealing with cookies
+		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Include OPTIONS for preflight
+		credentials: true, // Allow credentials
+		allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
 	})
 );
+app.options("*", cors()); // Allow all options requests with CORS
 
 const logStream = fs.createWriteStream(path.join(__dirname, "log.txt"), {
 	flags: "a",
